@@ -2,8 +2,24 @@
   <div class="caisse-container">
     <!-- En-tête -->
     <header class="caisse-header">
-      <h2>Point de Vente</h2>
-      <p>{{ new Date().toLocaleString() }}</p>
+      <div>
+        <h2>Point de Vente</h2>
+        <p>{{ new Date().toLocaleString() }}</p>
+      </div>
+      <div style="text-align: right;">
+        <p><strong>Caisse:</strong> {{ userName || 'Utilisateur' }}</p>
+        <p>
+          <strong>Rôle:</strong>
+          <v-chip
+            :color="userRole === 'admin' ? 'red lighten-2' : 'blue lighten-2'"
+            dark
+            small
+          >
+            {{ userRole || 'Inconnu' }}
+          </v-chip>
+        </p>
+        <v-btn color="error" @click="logout">Déconnexion</v-btn>
+      </div>
     </header>
 
     <div class="caisse-content">
@@ -101,32 +117,30 @@
         >
           {{ isLoading ? "Traitement..." : "VALIDER TICKET" }}
         </button>
-
+      </section>
+      <!-- Section des actions globales -->
+      <section class="actions-verticales">
         <v-btn
           color="success"
-          class="mt-2"
-          block
           @click="imprimerTicket"
           :disabled="ticket.length === 0"
         >
           Imprimer Ticket
         </v-btn>
-      </section>
-      <section>
-        <v-btn color="info" @click="showStatsDialog = true">
+
+        <v-btn v-if="userRole === 'admin'" color="info" @click="showStatsDialog = true">
           Voir les statistiques
         </v-btn>
-      </section>
-      <section style="margin-top: 1rem; display: flex; gap: 1rem">
-        <v-btn color="warning" @click="imprimerTicketX">
+
+        <v-btn v-if="userRole === 'admin'" color="warning" @click="imprimerTicketX">
           Imprimer Ticket X
         </v-btn>
-        <v-btn color="error" @click="imprimerTicketZ">
+
+        <v-btn v-if="userRole === 'admin'" color="error" @click="imprimerTicketZ">
           Clôturer avec Ticket Z
         </v-btn>
-      </section>
-      <section style="margin-top: 1rem">
-        <v-btn color="primary" @click="goToTickets"> Tickets </v-btn>
+
+        <v-btn v-if="userRole === 'admin'" color="primary" @click="goToTickets"> Voir les Tickets </v-btn>
       </section>
     </div>
   </div>
@@ -160,6 +174,11 @@ export default {
     const showDialog = ref(false);
     const showStatsDialog = ref(false);
     const router = useRouter();
+     // State pour user info
+    const userName = ref('');
+    const userRole = ref('');
+
+ 
     const retirerDuTicket = (index) => {
       if (confirm(`Supprimer "${ticket.value[index].name}" du ticket ?`)) {
         ticket.value.splice(index, 1);
@@ -314,6 +333,8 @@ export default {
 
     onMounted(async () => {
       await chargerProduits();
+   userName.value = localStorage.getItem('user_name') || 'Utilisateur';
+  userRole.value = localStorage.getItem('user_role') || 'Invité';
     });
     const imprimerTicketX = async () => {
       try {
@@ -398,12 +419,18 @@ export default {
         alert("Erreur lors de la clôture de la journée.");
       }
     };
+const logout = () => {
+  localStorage.removeItem("api_token"); // Supprime le token
+  router.push("/"); // Redirige vers la page de login
+  location.reload(); // Recharge la page pour réinitialiser les états
+};
 
     return {
       produits,
       ticket,
       montantRecu,
       total,
+      logout,
       renduMonnaie,
       ajouterAuTicket,
       validerTicket,
@@ -421,6 +448,8 @@ export default {
       retirerDuTicket,
       goToTickets,
       router,
+      userName,
+      userRole
     };
   },
 };
@@ -509,5 +538,12 @@ export default {
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1rem;
+}
+.actions-verticales {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+  max-width: 250px;
 }
 </style>

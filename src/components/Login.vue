@@ -26,8 +26,15 @@ async function submitLogin() {
     const { token, user } = response.data;
 
     localStorage.setItem("api_token", token);
- // Redirection vers la page TheWelcome
-    router.push({ name: "TheWelcome" });
+    localStorage.setItem("user_name", user.name);   // stocker le nom
+    localStorage.setItem("user_role", user.role);   // stocker le rôle
+   // Redirection selon le rôle
+   console.log("xcxcxc",response)
+    if (user.role  === "admin") {
+      router.push({ name: "Tickets" }); 
+    } else {
+      router.push({ name: "Caisse" });
+    }
     emit("login-success", user);
   } catch (error) {
     if (error.response && error.response.status === 401) {

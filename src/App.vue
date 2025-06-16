@@ -1,12 +1,12 @@
 <script setup>
-import { ref,onMounted } from 'vue';
-import Login from './components/Login.vue';
-import TheWelcome from './components/TheWelcome.vue';
+import { ref, onMounted } from "vue";
+import Login from "./components/Login.vue";
+import Caisse from "./components/Caisse.vue";
 
 const isLoggedIn = ref(false);
 onMounted(() => {
   // Vérifie s’il y a un token dans localStorage
-  const token = localStorage.getItem('api_token');
+  const token = localStorage.getItem("api_token");
   if (token) {
     isLoggedIn.value = true;
   }
