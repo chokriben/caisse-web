@@ -2,44 +2,41 @@
   <div class="caisse-container">
     <!-- En-tête -->
     <header class="caisse-header">
-      <div>
-        <h2>Point de Vente</h2>
-        <p>{{ new Date().toLocaleString() }}</p>
+      <div class="caisse-info">
+        <h1>🛒 Point de Vente</h1>
+        <p class="datetime">{{ currentDateTime }}</p>
       </div>
-      <div style="text-align: right;">
-        <p><strong>Caisse:</strong> {{ userName || 'Utilisateur' }}</p>
+      <div class="caisse-user">
+        <p><strong>Caisse :</strong> {{ userName || "Utilisateur" }}</p>
         <p>
-          <strong>Rôle:</strong>
+          <strong>Rôle :</strong>
           <v-chip
-            :color="userRole === 'admin' ? 'red lighten-2' : 'blue lighten-2'"
+            :color="userRole === 'admin' ? 'red darken-2' : 'blue darken-2'"
             dark
-            small
+            large
           >
-            {{ userRole || 'Inconnu' }}
+            {{ userRole || "Invité" }}
           </v-chip>
         </p>
-        <v-btn color="error" @click="logout">Déconnexion</v-btn>
+        <v-btn color="red darken-2" @click="logout" large>🚪 Déconnexion</v-btn>
       </div>
     </header>
 
+    <!-- Corps -->
     <div class="caisse-content">
-      <!-- Liste des produits -->
+      <!-- Produits -->
       <section class="produits">
-        <h3>Produits</h3>
-        <div
-          style="display: flex; justify-content: flex-end; margin-bottom: 1rem"
-        >
+        <div class="produits-header">
+          <h2>🧺 Produits</h2>
           <v-btn
-            color="success"
-            class="mr-2"
-            type="button"
-            prepend-icon="mdi-check"
+            v-if="userRole === 'admin'"
+            color="green darken-1"
+            large
             @click="showDialog = true"
           >
-            Ajouter
+            ➕ Ajouter
           </v-btn>
         </div>
-
         <div class="produits-liste">
           <button
             v-for="produit in produitsPage"
@@ -48,112 +45,90 @@
             @click="ajouterAuTicket(produit)"
           >
             {{ produit.name }}<br />
-            <strong>{{ formatPrix(produit.price) }} </strong>
+            <strong>{{ formatPrix(produit.price) }}</strong>
           </button>
         </div>
 
         <!-- Pagination -->
-        <div
-          class="pagination-produits"
-          style="margin-top: 1rem; text-align: center"
-        >
-          <v-btn icon :disabled="page <= 1" @click="page--" color="primary">
-            <v-icon>mdi-chevron-left</v-icon>
+        <div class="pagination-produits">
+          <v-btn icon large :disabled="page <= 1" @click="page--">
+            <v-icon large>mdi-chevron-left</v-icon>
           </v-btn>
-
-          <span> Page {{ page }} / {{ totalPages }} </span>
-
-          <v-btn
-            icon
-            :disabled="page >= totalPages"
-            @click="page++"
-            color="primary"
-          >
-            <v-icon>mdi-chevron-right</v-icon>
+          <span>Page {{ page }} / {{ totalPages }}</span>
+          <v-btn icon large :disabled="page >= totalPages" @click="page++">
+            <v-icon large>mdi-chevron-right</v-icon>
           </v-btn>
         </div>
       </section>
 
       <!-- Ticket -->
       <section class="ticket">
-        <h3>Ticket</h3>
+        <h2>🧾 Ticket</h2>
         <ul>
-          <li
-            v-for="(item, index) in ticket"
-            :key="index"
-            @click="retirerDuTicket(index)"
-            style="cursor: pointer; user-select: none"
-            title="Cliquer pour supprimer cet article du ticket"
-          >
-            {{ item.name }} x{{ item.quantite }} -
-            {{ formatPrix(item.price * item.quantite) }}
+          <li v-for="(item, index) in ticket" :key="index">
+            <div style="flex: 1">
+              <strong>{{ item.name }}</strong><br />
+              <small>{{ formatPrix(item.price) }} x {{ item.quantite }} = {{ formatPrix(item.price * item.quantite) }}</small>
+            </div>
+            <div class="actions">
+              <v-btn icon @click="decrementQuantite(index)"><v-icon>mdi-minus</v-icon></v-btn>
+              <span>{{ item.quantite }}</span>
+              <v-btn icon @click="incrementQuantite(index)"><v-icon>mdi-plus</v-icon></v-btn>
+              <v-btn icon color="red" @click="retirerDuTicket(index)"><v-icon>mdi-delete</v-icon></v-btn>
+            </div>
           </li>
         </ul>
 
-        <div class="total">
-          Total : <strong>{{ formatPrix(total) }} </strong>
-        </div>
+        <div class="total">Total : <strong>{{ formatPrix(total) }}</strong></div>
 
-        <!-- Zone paiement -->
+        <!-- Paiement -->
         <div class="zone-paiement">
-          <label for="montantRecu">Montant reçu </label>
-          <input
-            id="montantRecu"
-            type="number"
-            v-model.number="montantRecu"
-            min="0"
-            step="0.01"
-            placeholder="0.00"
-          />
-          <p>
-            Montant Rendu : <strong>{{ formatPrix(renduMonnaie) }} </strong>
-          </p>
+          <label for="montantRecu">💰 Montant reçu</label>
+          <input id="montantRecu" type="number" v-model.number="montantRecu" placeholder="0.00" />
+          <p>💵 Montant Rendu : <strong>{{ formatPrix(renduMonnaie) }}</strong></p>
         </div>
 
-        <button
-          class="payer-btn"
-          @click="validerTicket"
-          :disabled="isLoading || ticket.length === 0"
-        >
-          {{ isLoading ? "Traitement..." : "VALIDER TICKET" }}
-        </button>
-      </section>
-      <!-- Section des actions globales -->
-      <section class="actions-verticales">
         <v-btn
+          class="payer-btn"
+          :disabled="isLoading || ticket.length === 0"
+          @click="validerTicket"
+          large
           color="success"
-          @click="imprimerTicket"
-          :disabled="ticket.length === 0"
         >
-          Imprimer Ticket
+          {{ isLoading ? "Traitement..." : "✅ VALIDER TICKET" }}
+        </v-btn>
+      </section>
+
+      <!-- Actions verticales -->
+      <section class="actions-verticales">
+        <v-btn large color="blue darken-2" @click="imprimerTicket" :disabled="ticket.length === 0">
+          🖨️ Imprimer Ticket
         </v-btn>
 
-        <v-btn v-if="userRole === 'admin'" color="info" @click="showStatsDialog = true">
-          Voir les statistiques
+        <v-btn large v-if="userRole === 'admin'" color="indigo" @click="showStatsDialog = true">
+          📊 Voir les statistiques
         </v-btn>
 
-        <v-btn v-if="userRole === 'admin'" color="warning" @click="imprimerTicketX">
-          Imprimer Ticket X
+        <v-btn large v-if="userRole === 'admin'" color="orange" @click="imprimerTicketX">
+          🧾 Ticket X
         </v-btn>
 
-        <v-btn v-if="userRole === 'admin'" color="error" @click="imprimerTicketZ">
-          Clôturer avec Ticket Z
+        <v-btn large v-if="userRole === 'admin'" color="red" @click="imprimerTicketZ">
+          🚫 Clôturer - Ticket Z
         </v-btn>
 
-        <v-btn v-if="userRole === 'admin'" color="primary" @click="goToTickets"> Voir les Tickets </v-btn>
+        <v-btn large v-if="userRole === 'admin'" color="primary" @click="goToTickets">
+          📋 Historique Tickets
+        </v-btn>
       </section>
     </div>
+
+    <!-- Dialogs -->
+    <dialog-add-produit :visible="showDialog" @update:visible="showDialog = $event" @dataChanged="chargerProduits" />
+    <dialog-stats :visible="showStatsDialog" @update:visible="showStatsDialog = $event" />
   </div>
-  <dialog-add-produit
-    :visible="showDialog"
-    @update:visible="showDialog = $event"
-    @dataChanged="chargerProduits"
-  />
-  <dialog-stats
-    :visible="showStatsDialog"
-    @update:visible="showStatsDialog = $event"
-  />
 </template>
+
 
 <script>
 import { ref, computed, onMounted } from "vue";
@@ -174,11 +149,10 @@ export default {
     const showDialog = ref(false);
     const showStatsDialog = ref(false);
     const router = useRouter();
-     // State pour user info
-    const userName = ref('');
-    const userRole = ref('');
+    // State pour user info
+    const userName = ref("");
+    const userRole = ref("");
 
- 
     const retirerDuTicket = (index) => {
       if (confirm(`Supprimer "${ticket.value[index].name}" du ticket ?`)) {
         ticket.value.splice(index, 1);
@@ -332,9 +306,13 @@ export default {
     };
 
     onMounted(async () => {
+      setInterval(() => {
+    const now = new Date();
+    currentDateTime.value = now.toLocaleString("fr-FR");
+  }, 1000);
       await chargerProduits();
-   userName.value = localStorage.getItem('user_name') || 'Utilisateur';
-  userRole.value = localStorage.getItem('user_role') || 'Invité';
+      userName.value = localStorage.getItem("user_name") || "Utilisateur";
+      userRole.value = localStorage.getItem("user_role") || "Invité";
     });
     const imprimerTicketX = async () => {
       try {
@@ -419,11 +397,22 @@ export default {
         alert("Erreur lors de la clôture de la journée.");
       }
     };
-const logout = () => {
-  localStorage.removeItem("api_token"); // Supprime le token
-  router.push("/"); // Redirige vers la page de login
-  location.reload(); // Recharge la page pour réinitialiser les états
-};
+    const logout = () => {
+      localStorage.removeItem("api_token"); // Supprime le token
+      router.push("/"); // Redirige vers la page de login
+      location.reload(); // Recharge la page pour réinitialiser les états
+    };
+    const incrementQuantite = (index) => {
+      ticket.value[index].quantite++;
+    };
+
+    const decrementQuantite = (index) => {
+      if (ticket.value[index].quantite > 1) {
+        ticket.value[index].quantite--;
+      } else {
+        retirerDuTicket(index);
+      }
+    };
 
     return {
       produits,
@@ -449,7 +438,9 @@ const logout = () => {
       goToTickets,
       router,
       userName,
-      userRole
+      userRole,
+      incrementQuantite,
+      decrementQuantite,
     };
   },
 };
@@ -464,7 +455,32 @@ const logout = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  background: #004d40;
+  color: white;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 1.5rem;
 }
+.caisse-header .datetime {
+  font-size: 1.2rem;
+  margin-top: 5px;
+}
+.caisse-user {
+  text-align: right;
+}
+
+.zone-paiement input {
+  font-size: 1.3rem;
+  height: 50px;
+}
+.ticket ul li {
+  font-size: 1.3rem;
+}
+
+.v-btn {
+  font-size: 1.2rem !important;
+}
+
 .caisse-content {
   display: flex;
   gap: 2rem;
@@ -481,24 +497,34 @@ const logout = () => {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  max-height: 550px;
+  overflow-y: auto;
 }
+
 .produit-btn {
   padding: 1rem;
-  background: #e3e3e3;
   border: none;
   border-radius: 8px;
-  width: 100px;
   cursor: pointer;
-  font-size: 1rem;
   text-align: center;
+  width: 140px;
+  height: 120px;
+  font-size: 1.3rem;
+  background: #dff0d8;
 }
 .produit-btn:hover {
   background: #d1d1d1;
 }
 .ticket ul {
+  border: 1px solid #ddd;
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.1);
   list-style: none;
   padding: 0;
+  max-height: 250px;
+  overflow-y: auto;
+  margin-bottom: 1rem;
 }
+
 .total {
   margin-top: 1rem;
   font-size: 1.2rem;
@@ -545,5 +571,31 @@ const logout = () => {
   gap: 1rem;
   margin-top: 2rem;
   max-width: 250px;
+  
+}
+.ticket ul li {
+  background-color: #ffffff;
+  padding: 10px 15px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  font-size: 1.1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Alternance de couleur (zébré) */
+.ticket ul li:nth-child(odd) {
+  background-color: #e6f7ff;
+}
+
+.ticket ul li:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.ticket ul li:hover {
+  background-color: #d0ebff;
 }
 </style>

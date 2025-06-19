@@ -8,8 +8,9 @@ import Login from '../components/Login.vue';
 // Import du layout Admin et ses pages enfants
 import AdminLayout from '../layouts/AdminLayout.vue';
 import Users from '../pages/admin/Users.vue';
+import Produits from '../pages/Produits.vue';
 import AdminDashboard from '../pages/admin/AdminDashboard.vue';
-
+import Settings from '../pages/admin/Settings.vue';
 const routes = [
   // Page d'accueil redirige vers la caisse
   { path: '/', redirect: '/caisse' },
@@ -39,6 +40,16 @@ const routes = [
         path: 'users',      // url = /admin/users
         name: 'AdminUsers',
         component: Users,
+      },
+      {
+        path: 'produits',      // url = /admin/users
+        name: 'Produits',
+        component: Produits,
+      },
+      {
+        path: 'settings',
+        name: 'Settings',
+        component: Settings,
       },
     ],
   },

@@ -1,12 +1,6 @@
 <template>
   <v-app>
-    <v-navigation-drawer
-      v-model="drawer"
-      app
-      clipped
-      fixed
-      width="250"
-    >
+    <v-navigation-drawer v-model="drawer" app clipped fixed width="250">
       <v-list dense>
         <v-list-item
           v-for="item in menuItems"
@@ -28,7 +22,12 @@
     <v-app-bar app clipped-left>
       <v-toolbar-title>Admin Dashboard</v-toolbar-title>
       <v-spacer></v-spacer>
-
+      <div class="mr-4 text-right">
+        <div>
+          <strong>{{ userName }}</strong>
+        </div>
+        <div class="text-caption">{{ userRole }}</div>
+      </div>
       <v-btn icon @click="logout">
         <v-icon>mdi-logout</v-icon>
       </v-btn>
@@ -54,11 +53,19 @@ import { useRouter } from "vue-router";
 
 const drawer = ref(true);
 const router = useRouter();
-
+// Récupérer les informations utilisateur
+const userName = ref(localStorage.getItem("user_name") || "Utilisateur");
+const userRole = ref(localStorage.getItem("user_role") || "Invité");
 const menuItems = [
-  { title: "Tableau de bord", icon: "mdi-view-dashboard", route: "/admin/dashboard" },
+  {
+    title: "Tableau de bord",
+    icon: "mdi-view-dashboard",
+    route: "/admin/dashboard",
+  },
   { title: "Utilisateurs", icon: "mdi-account-group", route: "/admin/users" },
   { title: "Paramètres", icon: "mdi-cog", route: "/admin/settings" },
+  { title: "Tickets", icon: "mdi-ticket", route: "/admin/tickets" },
+  { title: "Produits", icon: "mdi-package-variant", route: "/admin/produits" },
 ];
 
 const logout = () => {

@@ -4,6 +4,7 @@ import router from './router';
 // DevExtreme CSS
 import "devextreme/dist/css/dx.light.css";
 import "devextreme/dist/css/dx.common.css";
+import '@mdi/font/css/materialdesignicons.min.css'
 
 // PrimeVue & Dialog
 import PrimeVue from "primevue/config";
