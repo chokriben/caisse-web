@@ -42,7 +42,12 @@
       />
 
       <!-- Choix de colonnes -->
-      <DxColumnChooser :enabled="true" :height="500" :width="250" mode="select" />
+      <DxColumnChooser
+        :enabled="true"
+        :height="500"
+        :width="250"
+        mode="select"
+      />
 
       <!-- Colonne Date -->
       <DxColumn
@@ -62,9 +67,7 @@
         :allow-hiding="false"
         css-class="vertical-align"
       >
-        <template #cell="{ data }">
-          {{ formatPrix(data.total) }} €
-        </template>
+        <template #cell="{ data }"> {{ formatPrix(data.total) }} € </template>
       </DxColumn>
 
       <!-- Colonne Nom du Produit -->
@@ -92,11 +95,10 @@
   </div>
 </template>
 
-
 <script>
 import { ref, onMounted } from "vue";
 import axios from "axios";
-import Skeleton from 'primevue/skeleton';
+import Skeleton from "primevue/skeleton";
 
 import {
   DxDataGrid,
@@ -149,10 +151,12 @@ export default {
     };
 
     const getProductNames = (items) => {
-      return (items || [])
-        .map((item) => item.product?.name)
-        .filter(Boolean)
-        .join(", ") || "—";
+      return (
+        (items || [])
+          .map((item) => item.product?.name)
+          .filter(Boolean)
+          .join(", ") || "—"
+      );
     };
 
     const voirDetails = (id) => {

@@ -67,79 +67,144 @@
         <ul>
           <li v-for="(item, index) in ticket" :key="index">
             <div style="flex: 1">
-              <strong>{{ item.name }}</strong><br />
-              <small>{{ formatPrix(item.price) }} x {{ item.quantite }} = {{ formatPrix(item.price * item.quantite) }}</small>
+              <strong>{{ item.name }}</strong
+              ><br />
+              <small
+                >{{ formatPrix(item.price) }} x {{ item.quantite }} =
+                {{ formatPrix(item.price * item.quantite) }}</small
+              >
             </div>
             <div class="actions">
-              <v-btn icon @click="decrementQuantite(index)"><v-icon>mdi-minus</v-icon></v-btn>
+              <v-btn icon @click="decrementQuantite(index)"
+                ><v-icon>mdi-minus</v-icon></v-btn
+              >
               <span>{{ item.quantite }}</span>
-              <v-btn icon @click="incrementQuantite(index)"><v-icon>mdi-plus</v-icon></v-btn>
-              <v-btn icon color="red" @click="retirerDuTicket(index)"><v-icon>mdi-delete</v-icon></v-btn>
+              <v-btn icon @click="incrementQuantite(index)"
+                ><v-icon>mdi-plus</v-icon></v-btn
+              >
+              <v-btn icon color="red" @click="retirerDuTicket(index)"
+                ><v-icon>mdi-delete</v-icon></v-btn
+              >
             </div>
           </li>
         </ul>
 
-        <div class="total">Total : <strong>{{ formatPrix(total) }}</strong></div>
+        <div class="total">
+          Total : <strong>{{ formatPrix(total) }}</strong>
+        </div>
 
         <!-- Paiement -->
         <div class="zone-paiement">
           <label for="montantRecu">💰 Montant reçu</label>
-          <input id="montantRecu" type="number" v-model.number="montantRecu" placeholder="0.00" />
-          <p>💵 Montant Rendu : <strong>{{ formatPrix(renduMonnaie) }}</strong></p>
+          <input
+            id="montantRecu"
+            type="number"
+            v-model.number="montantRecu"
+            placeholder="0.00"
+          />
+          
+          <label for="modePaiement">🧾 Mode de Paiement</label>
+          <select v-model="modePaiement" id="modePaiement">
+            <option value="especes">Espèces</option>
+            <option value="carte">Carte</option>
+            <option value="cheque">Chèque</option>
+            <option value="mobile">Mobile Money</option>
+          </select>
+
+          <p>
+            💵 Montant Rendu : <strong>{{ formatPrix(renduMonnaie) }}</strong>
+          </p>
+
         </div>
 
         <v-btn
           class="payer-btn"
           :disabled="isLoading || ticket.length === 0"
           @click="validerTicket"
-          large
-          color="success"
+          color="green darken-2"
+          tile
         >
-          {{ isLoading ? "Traitement..." : "✅ VALIDER TICKET" }}
+          💵<br />
+          <strong>{{ isLoading ? "Traitement..." : "Valider" }}</strong>
         </v-btn>
       </section>
 
       <!-- Actions verticales -->
       <section class="actions-verticales">
-        <v-btn large color="blue darken-2" @click="imprimerTicket" :disabled="ticket.length === 0">
+        <v-btn
+          large
+          color="blue darken-2"
+          @click="imprimerTicket"
+          :disabled="ticket.length === 0"
+        >
           🖨️ Imprimer Ticket
         </v-btn>
-
-        <v-btn large v-if="userRole === 'admin'" color="indigo" @click="showStatsDialog = true">
+ <div class="clavier-wrapper">
+    <add-clavier @ajout="gererClavier" />
+  </div>
+        <v-btn
+          large
+          v-if="userRole === 'admin'"
+          color="indigo"
+          @click="showStatsDialog = true"
+        >
           📊 Voir les statistiques
         </v-btn>
 
-        <v-btn large v-if="userRole === 'admin'" color="orange" @click="imprimerTicketX">
+        <v-btn
+          large
+          v-if="userRole === 'admin'"
+          color="orange"
+          @click="imprimerTicketX"
+        >
           🧾 Ticket X
         </v-btn>
 
-        <v-btn large v-if="userRole === 'admin'" color="red" @click="imprimerTicketZ">
+        <v-btn
+          large
+          v-if="userRole === 'admin'"
+          color="red"
+          @click="imprimerTicketZ"
+        >
           🚫 Clôturer - Ticket Z
         </v-btn>
 
-        <v-btn large v-if="userRole === 'admin'" color="primary" @click="goToTickets">
+        <v-btn
+          large
+          v-if="userRole === 'admin'"
+          color="primary"
+          @click="goToTickets"
+        >
           📋 Historique Tickets
         </v-btn>
       </section>
     </div>
 
     <!-- Dialogs -->
-    <dialog-add-produit :visible="showDialog" @update:visible="showDialog = $event" @dataChanged="chargerProduits" />
-    <dialog-stats :visible="showStatsDialog" @update:visible="showStatsDialog = $event" />
+    <dialog-add-produit
+      :visible="showDialog"
+      @update:visible="showDialog = $event"
+      @dataChanged="chargerProduits"
+    />
+    <dialog-stats
+      :visible="showStatsDialog"
+      @update:visible="showStatsDialog = $event"
+    />
   </div>
 </template>
-
 
 <script>
 import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 import DialogAddProduit from "../components/DialogAddProduit.vue";
 import DialogStats from "../components/DialogStats.vue";
+import AddClavier from "../components/AddClavier.vue";
 import { useRouter } from "vue-router";
 export default {
   components: {
     DialogAddProduit,
     DialogStats,
+    AddClavier,
   },
   setup() {
     const produits = ref([]);
@@ -148,6 +213,8 @@ export default {
     const isLoading = ref(false);
     const showDialog = ref(false);
     const showStatsDialog = ref(false);
+    const modePaiement = ref("especes");
+
     const router = useRouter();
     // State pour user info
     const userName = ref("");
@@ -160,6 +227,18 @@ export default {
     };
     const goToTickets = () => {
       router.push("/tickets");
+    };
+    const gererClavier = (val) => {
+      const current = montantRecu.value.toString();
+
+      if (val === "⌫") {
+        montantRecu.value = parseFloat(current.slice(0, -1)) || 0;
+      } else if (val === "C") {
+        montantRecu.value = 0;
+      } else {
+        const nouveau = current === "0" ? val : current + val;
+        montantRecu.value = parseFloat(nouveau);
+      }
     };
 
     const formatPrix = (value) => {
@@ -263,6 +342,7 @@ export default {
       // Optionnel : réinitialiser après impression
       ticket.value = [];
       montantRecu.value = 0;
+      modePaiement.value = "especes";
     };
 
     const validerTicket = async () => {
@@ -283,6 +363,7 @@ export default {
           total: total.value,
           received: montantRecu.value,
           change: renduMonnaie.value,
+          mode: modePaiement.value,
           items: ticket.value.map((item) => ({
             product_id: item.id,
             quantity: item.quantite,
@@ -297,6 +378,7 @@ export default {
         // Réinitialisation
         ticket.value = [];
         montantRecu.value = 0;
+        modePaiement.value = "especes";
       } catch (error) {
         console.error(error);
         alert("Erreur lors de l'enregistrement de la vente.");
@@ -307,9 +389,9 @@ export default {
 
     onMounted(async () => {
       setInterval(() => {
-    const now = new Date();
-    currentDateTime.value = now.toLocaleString("fr-FR");
-  }, 1000);
+        const now = new Date();
+        currentDateTime.value = now.toLocaleString("fr-FR");
+      }, 1000);
       await chargerProduits();
       userName.value = localStorage.getItem("user_name") || "Utilisateur";
       userRole.value = localStorage.getItem("user_role") || "Invité";
@@ -441,6 +523,8 @@ export default {
       userRole,
       incrementQuantite,
       decrementQuantite,
+      modePaiement,
+      gererClavier,
     };
   },
 };
@@ -469,13 +553,24 @@ export default {
   text-align: right;
 }
 
-.zone-paiement input {
-  font-size: 1.3rem;
-  height: 50px;
+.zone-paiement {
+  margin-top: 1rem;
+  background: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
+
+.zone-paiement .clavier-wrapper {
+  margin-top: 1rem;
+  border-top: 1px solid #ccc;
+  padding-top: 1rem;
+}
+
 .ticket ul li {
   font-size: 1.3rem;
 }
+
 
 .v-btn {
   font-size: 1.2rem !important;
@@ -489,6 +584,7 @@ export default {
 .produits,
 .ticket {
   flex: 1;
+    margin-bottom: 1rem;
   background: #f8f8f8;
   padding: 1rem;
   border-radius: 8px;
@@ -546,19 +642,30 @@ export default {
   font-size: 1.1rem;
 }
 .payer-btn {
-  margin-top: 1rem;
-  padding: 0.75rem 1rem;
-  font-size: 1.1rem;
-  background: green;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
   width: 100%;
+  height: 140px;
+  font-size: 1.6rem;
+  font-weight: bold;
+  background: #28a745;
+  color: white;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex-direction: column;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s ease;
+  padding: 1rem;
 }
 .payer-btn:hover {
-  background: darkgreen;
+  background: #218838;
 }
+.payer-btn:disabled {
+  background: #a9a9a9;
+  cursor: not-allowed;
+}
+
 .stats {
   background: #f0f9ff;
   padding: 1rem;
@@ -571,7 +678,6 @@ export default {
   gap: 1rem;
   margin-top: 2rem;
   max-width: 250px;
-  
 }
 .ticket ul li {
   background-color: #ffffff;
@@ -585,7 +691,14 @@ export default {
   transition: background-color 0.2s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
-
+.zone-paiement select {
+  font-size: 1.1rem;
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.3rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
 /* Alternance de couleur (zébré) */
 .ticket ul li:nth-child(odd) {
   background-color: #e6f7ff;
@@ -598,4 +711,15 @@ export default {
 .ticket ul li:hover {
   background-color: #d0ebff;
 }
+.zone-paiement add-clavier {
+  margin-top: 0.5rem;
+  display: block;
+}
+.clavier-wrapper {
+  padding: 0.5rem;
+  border-radius: 8px;
+  background: #f0f0f0;
+  margin-top: 0.5rem;
+}
+
 </style>
