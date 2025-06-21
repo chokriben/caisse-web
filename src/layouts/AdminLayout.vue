@@ -66,6 +66,9 @@ const menuItems = [
   { title: "Paramètres", icon: "mdi-cog", route: "/admin/settings" },
   { title: "Tickets", icon: "mdi-ticket", route: "/admin/tickets" },
   { title: "Produits", icon: "mdi-package-variant", route: "/admin/produits" },
+  { title: "Clôture de caisse", icon: "mdi-cash-register", route: "/admin/cloture" },
+  { title: "Clôture de caisse", icon: "mdi-cash-register", route: "/admin/Closures" },
+
 ];
 
 const logout = () => {

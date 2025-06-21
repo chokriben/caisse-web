@@ -11,6 +11,8 @@ import Users from '../pages/admin/Users.vue';
 import Produits from '../pages/Produits.vue';
 import AdminDashboard from '../pages/admin/AdminDashboard.vue';
 import Settings from '../pages/admin/Settings.vue';
+import ClotureCaisse from '../pages/admin/ClotureCaisse.vue'; 
+import Closures from '../pages/admin/Closures.vue'; 
 const routes = [
   // Page d'accueil redirige vers la caisse
   { path: '/', redirect: '/caisse' },
@@ -50,6 +52,16 @@ const routes = [
         path: 'settings',
         name: 'Settings',
         component: Settings,
+      },
+      {
+        path: 'cloture',
+        name: 'ClotureCaisse',
+        component: ClotureCaisse, // ✅ Composant à créer/importer
+      },
+      {
+        path: 'closures',
+        name: 'Closures',
+        component: Closures, // ✅ Composant à créer/importer
       },
     ],
   },

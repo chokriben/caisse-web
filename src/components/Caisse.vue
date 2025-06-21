@@ -88,11 +88,9 @@
             </div>
           </li>
         </ul>
-
         <div class="total">
           Total : <strong>{{ formatPrix(total) }}</strong>
         </div>
-
         <!-- Paiement -->
         <div class="zone-paiement">
           <label for="montantRecu">💰 Montant reçu</label>
@@ -102,7 +100,6 @@
             v-model.number="montantRecu"
             placeholder="0.00"
           />
-          
           <label for="modePaiement">🧾 Mode de Paiement</label>
           <select v-model="modePaiement" id="modePaiement">
             <option value="especes">Espèces</option>
@@ -110,13 +107,10 @@
             <option value="cheque">Chèque</option>
             <option value="mobile">Mobile Money</option>
           </select>
-
           <p>
             💵 Montant Rendu : <strong>{{ formatPrix(renduMonnaie) }}</strong>
           </p>
-
         </div>
-
         <v-btn
           class="payer-btn"
           :disabled="isLoading || ticket.length === 0"
@@ -139,9 +133,9 @@
         >
           🖨️ Imprimer Ticket
         </v-btn>
- <div class="clavier-wrapper">
-    <add-clavier @ajout="gererClavier" />
-  </div>
+        <div class="clavier-wrapper">
+          <add-clavier @ajout="gererClavier" />
+        </div>
         <v-btn
           large
           v-if="userRole === 'admin'"
@@ -153,7 +147,7 @@
 
         <v-btn
           large
-          v-if="userRole === 'admin'"
+          v-if="userRole === 'caisser'"
           color="orange"
           @click="imprimerTicketX"
         >
@@ -571,7 +565,6 @@ export default {
   font-size: 1.3rem;
 }
 
-
 .v-btn {
   font-size: 1.2rem !important;
 }
@@ -584,7 +577,7 @@ export default {
 .produits,
 .ticket {
   flex: 1;
-    margin-bottom: 1rem;
+  margin-bottom: 1rem;
   background: #f8f8f8;
   padding: 1rem;
   border-radius: 8px;
@@ -721,5 +714,4 @@ export default {
   background: #f0f0f0;
   margin-top: 0.5rem;
 }
-
 </style>
