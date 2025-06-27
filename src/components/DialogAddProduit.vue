@@ -58,7 +58,7 @@
 <script>
 import { ref, watch, computed } from "vue";
 import axios from "axios";
-
+import { toast } from "vue3-toastify";
 export default {
   props: {
     visible: {
@@ -141,7 +141,8 @@ export default {
         form.value.price === null ||
         form.value.price === ""
       ) {
-        alert("Veuillez remplir les champs obligatoires : nom et prix.");
+
+             toast.error("Veuillez remplir les champs obligatoires : nom et prix. ");
         return;
       }
 
@@ -164,7 +165,6 @@ export default {
             price: form.value.price,
           });
         }
-
         emit("dataChanged");
         fermerPopup();
       } catch (err) {

@@ -47,8 +47,13 @@
         :show-info="true"
         :show-navigation-buttons="true"
       />
-      <DxColumnChooser :enabled="true" />
       <DxExport :enabled="true" />
+      <DxColumnChooser
+        :enabled="true"
+        :height="500"
+        :width="250"
+        mode="select"
+      />
       <DxSorting mode="single" />
       <DxEditing
         :allow-adding="false"

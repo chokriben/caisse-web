@@ -176,6 +176,7 @@
 
     <!-- Dialogs -->
     <dialog-add-produit
+       v-if="userRole === 'admin'"
       :visible="showDialog"
       @update:visible="showDialog = $event"
       @dataChanged="chargerProduits"
@@ -194,6 +195,7 @@ import DialogAddProduit from "../components/DialogAddProduit.vue";
 import DialogStats from "../components/DialogStats.vue";
 import AddClavier from "../components/AddClavier.vue";
 import { useRouter } from "vue-router";
+import { toast } from "vue3-toastify";
 export default {
   components: {
     DialogAddProduit,
@@ -341,12 +343,12 @@ export default {
 
     const validerTicket = async () => {
       if (total.value === 0) {
-        alert("Aucun article sélectionné.");
+         toast.info("Aucun article sélectionné.");
         return;
       }
 
       if (montantRecu.value < total.value) {
-        alert("Le montant reçu est insuffisant !");
+         toast.info("Le montant reçu est insuffisant !");
         return;
       }
 
@@ -367,8 +369,8 @@ export default {
 
         console.log("ccc", vente);
         await axios.post("http://localhost:8000/api/sales", vente);
-        alert("Paiement effectué avec succès !");
-
+       // alert("Paiement effectué avec succès !");
+     toast.success("Paiement effectué avec succès ");
         // Réinitialisation
         ticket.value = [];
         montantRecu.value = 0;
@@ -568,7 +570,6 @@ export default {
 .v-btn {
   font-size: 1.2rem !important;
 }
-
 .caisse-content {
   display: flex;
   gap: 2rem;

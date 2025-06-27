@@ -21,12 +21,17 @@
         :show-info="true"
         :show-navigation-buttons="true"
       />
-      <DxColumnChooser :enabled="true" />
+          <DxColumnChooser
+        :enabled="true"
+        :height="500"
+        :width="250"
+        mode="select"
+      />
       <DxExport :enabled="true" />
       <DxSorting mode="single" />
-
       <DxColumn data-field="date" caption="Date" data-type="date" format="dd/MM/yyyy" />
       <DxColumn data-field="total_sales" caption="Total Ventes" data-type="number" format="#,##0.00" />
+      <DxColumn data-field="shift" caption="Shift" data-type="string" />
       <DxColumn data-field="total_received" caption="Montant Reçu" data-type="number" format="#,##0.00" />
       <DxColumn data-field="total_change" caption="Rendu" data-type="number" format="#,##0.00" />
       <DxColumn data-field="real_cash" caption="Montant Réel" data-type="number" format="#,##0.00" />
@@ -61,6 +66,7 @@ const chargerClosures = async () => {
       headers: { Authorization: `Bearer ${localStorage.getItem("api_token")}` },
     });
     closures.value = response.data.closures;
+    console.log("bbbbb",closures.value )
   } catch (error) {
     console.error("Erreur chargement clôtures :", error);
   } finally {

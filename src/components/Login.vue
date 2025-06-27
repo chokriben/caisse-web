@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import axios from "axios";
 import { useRouter } from "vue-router";
-
+import { toast } from "vue3-toastify";
 const emit = defineEmits(["login-success"]);
 const router = useRouter();
 const password = ref("");
@@ -21,10 +21,9 @@ function removeLastDigit() {
   password.value = password.value.slice(0, -1);
 }
 
-
 async function submitLogin() {
   if (!password.value) {
-    alert("Veuillez remplir tous les champs.");
+    toast.info("Veuillez remplir tous les champs.");
     return;
   }
 
@@ -48,10 +47,16 @@ async function submitLogin() {
 
     emit("login-success", user);
   } catch (error) {
-    if (error.response && error.response.status === 401) {
-      alert(" mot de passe incorrect.");
+    if (error.response) {
+      if (error.response.status === 401) {
+        toast.error("Mot de passe incorrect.");
+      } else if (error.response.status === 403) {
+        toast.error(error.response.data.message || "Accès refusé.");
+      } else {
+        toast.error("Erreur serveur, veuillez réessayer plus tard.");
+      }
     } else {
-      alert("Erreur serveur, veuillez réessayer plus tard.");
+      toast.error("Erreur réseau, impossible de contacter le serveur.");
     }
   } finally {
     loading.value = false;
